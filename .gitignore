@@ -1,0 +1,22 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+
+# 运行时数据（笔记存储）
+_tmp/
+
+# 本地环境/密钥
+.env
+.env.*
+*.local
+
+# 日志
+*.log
+
+# 编辑器/系统
+.DS_Store
+.vscode/
+.idea/
+*.swp
