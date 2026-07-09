@@ -34,14 +34,24 @@ jobs:
           name: dist
           path: dist/
 
-      # 打 tag 时额外打包 dist 并创建 Release
-      - name: 打包 dist
+      # 打 tag 时组装「完整可部署包」并创建 Release
+      # 包含: index.php + spa-index.html(填入真实hash) + spa/assets/* + README
+      - name: 组装可部署包
         if: startsWith(github.ref, 'refs/tags/v')
-        run: cd dist && zip -r ../simplenote-dist.zip .
+        run: |
+          JSHASH=$(ls dist/assets/index-*.js | head -1 | sed 's|dist/assets/index-||;s|\.js||')
+          CSSHASH=$(ls dist/assets/index-*.css | head -1 | sed 's|dist/assets/index-||;s|\.css||')
+          echo "js=$JSHASH css=$CSSHASH"
+          mkdir -p pkg/spa/assets
+          cp index.php pkg/
+          sed "s|index-\[hash\].js|index-$JSHASH.js|g;s|index-\[hash\].css|index-$CSSHASH.css|g" deploy/spa-index.html > pkg/spa-index.html
+          cp dist/assets/* pkg/spa/assets/
+          cp README.md pkg/
+          cd pkg && zip -r "../simplenote-${{ github.ref_name }}.zip" .
 
       - name: 创建 Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: simplenote-dist.zip
+          files: simplenote-${{ github.ref_name }}.zip
           generate_release_notes: true
