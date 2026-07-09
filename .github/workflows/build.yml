@@ -1,0 +1,47 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: write # tag 推送时创建 Release 需要
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 注意：此处不要设 NODE_ENV=production，否则 npm ci 会跳过 vite 等 devDependencies
+      - run: npm ci
+
+      # 构建时显式 production，避免 Vue 被解析成 dev 版（bundle 多 ~30KB 且带警告）
+      - run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      # 打 tag 时额外打包 dist 并创建 Release
+      - name: 打包 dist
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: cd dist && zip -r ../simplenote-dist.zip .
+
+      - name: 创建 Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: simplenote-dist.zip
+          generate_release_notes: true
