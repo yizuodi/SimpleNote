@@ -5,6 +5,15 @@ import { config } from '../config'
 const toast = inject('toast')
 const origin = window.location.origin
 
+// 首页公告（来自 $site.notice）：items 为空则隐藏；text 支持 {email}/{siteName} 占位符
+const noticeIcon = config.notice?.icon || '📢'
+const noticeItems = (config.notice?.items || []).map((it) => ({
+  label: it.label,
+  text: String(it.text ?? '')
+    .replace(/\{email\}/g, config.email)
+    .replace(/\{siteName\}/g, config.siteName),
+}))
+
 const showCustom = ref(false)
 const customName = ref(null)
 
@@ -32,13 +41,11 @@ function openCustom() {
 
 <template>
   <div class="home">
-    <section class="notice">
-      <div class="notice-icon">📢</div>
+    <section v-if="noticeItems.length" class="notice">
+      <div class="notice-icon">{{ noticeIcon }}</div>
       <div class="notice-body">
-        <p><strong>隐私提醒：</strong>任何拥有分享链接的访客都可以查看和编辑您分享的内容。</p>
-        <p>
-          <strong>滥用反馈邮箱：</strong><code>{{ config.email }}</code>
-          （烦请将 # 替换为 @），我们承诺收到反馈后 24 小时内处理。
+        <p v-for="(it, i) in noticeItems" :key="i">
+          <strong>{{ it.label }}：</strong>{{ it.text }}
         </p>
       </div>
     </section>

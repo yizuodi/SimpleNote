@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<!--
+  部署用 HTML 外壳模板（由 index.php 通过 include 引入，不要改名为 index.html，
+  否则 nginx 的 index 指令会直接返回它、绕过 index.php 的路由与 $site 配置）。
+
+  部署步骤：
+  1. npm run build 后，把 dist/assets/* 上传到站点 /spa/assets/
+  2. 把下面两行的 [hash] 替换为 dist/assets/ 里实际的文件 hash
+  3. 此文件放到站点根目录，与 index.php 同级
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php
+        $sn = htmlspecialchars($site['siteName'] ?? 'SimpleNote');
+        if (isset($_GET['note']) && preg_match('/^[a-zA-Z0-9_-]+$/', $_GET['note'])) {
+            print htmlspecialchars($_GET['note']) . ' - ' . $sn;
+        } else {
+            print $sn;
+        }
+    ?></title>
+    <link rel="icon" href="/favicon.ico">
+    <script>window.__NOTE_CONFIG__ = <?php echo isset($site) ? json_encode($site, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : '{}'; ?>;</script>
+  <script type="module" crossorigin src="/spa/assets/index-[hash].js"></script>
+  <link rel="stylesheet" crossorigin href="/spa/assets/index-[hash].css">
+</head>
+<body>
+    <div id="app"></div>
+</body>
+</html>

@@ -77,12 +77,20 @@ $site = [
     'icp_url'   => 'https://beian.miit.gov.cn/',   // 备案官网链接
     'siteName'  => 'SimpleNote',                 // 站点名（顶部 logo / 浏览器标题）
     'copyright' => 'Copyright © 2024 SimpleNote',// 页脚版权
+    'notice'    => [                              // 首页公告；items 为空则隐藏
+        'icon'  => '📢',
+        'items' => [
+            ['label' => '隐私提醒', 'text' => '任何拥有分享链接的访客都可以查看和编辑您分享的内容。'],
+            ['label' => '滥用反馈', 'text' => '反馈邮箱 {email}（# 替换为 @），24 小时内处理。'],
+        ],
+    ],
 ];
 ```
 
 - **改文案只需改 `$site`，无需重新构建前端**（`src/config.js` 中的同名值仅作为本地 dev 的回退默认值）。
 - **域名不写死**：前端运行时通过 `window.location.origin` 自动获取当前域名，换域名零改动。
 - 浏览器标题会随 `siteName` 联动：首页为 `siteName`，笔记页为 `笔记名 - siteName`。
+- **首页公告 `notice`**：`items` 留空数组即可隐藏整个公告；`text` 支持 `{email}` / `{siteName}` 占位符（运行时自动替换，邮箱保持单一来源）。
 
 ## 🌐 部署
 
