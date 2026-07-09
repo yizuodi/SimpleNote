@@ -46,6 +46,7 @@ jobs:
           cp index.php pkg/
           sed "s|index-\[hash\].js|index-$JSHASH.js|g;s|index-\[hash\].css|index-$CSSHASH.css|g" deploy/spa-index.html > pkg/spa-index.html
           cp dist/assets/* pkg/spa/assets/
+          cp dist/favicon.svg pkg/
           cp README.md pkg/
           cd pkg && zip -r "../simplenote-${{ github.ref_name }}.zip" .
 
